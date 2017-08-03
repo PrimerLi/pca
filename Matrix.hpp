@@ -3,6 +3,8 @@
 #include <iostream>
 #include "Vector.hpp"
 
+struct Eigenstruct;
+
 class Matrix
 {
 private:
@@ -28,7 +30,28 @@ public:
     Matrix transpose() const;
     double trace() const;
     std::vector<Matrix> QR() const;
-    std::vector<double> eigenvalues() const;
+    std::vector<double> eigenvalues(double eps = 1.0e-16) const;
+    Eigenstruct eigensystem(double eps = 1.0e-16) const;
     void print() const;
     friend std::ostream & operator<< (std::ostream &os, const Matrix &parameter);
+};
+
+struct Eigenstruct
+{
+    int dimension;
+    std::vector<double> eigenvalues;
+    Matrix O;
+    Eigenstruct(int dimension, const std::vector<double> &eigenvalues, const Matrix &O)
+    {
+        this->dimension = dimension;
+        assert(dimension > 0);
+        assert(dimension == eigenvalues.size());
+        assert(dimension == O.getRow());
+        assert(dimension == O.getCol());
+        for (int i = 0; i < dimension; ++i)
+        {
+            this->eigenvalues.push_back(eigenvalues[i]);
+        }
+        this->O = O;
+    }
 };

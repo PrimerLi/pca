@@ -134,5 +134,10 @@ int main()
     printVector(eigenvalues);
     cout << "trace of covariance matrix = " << covariance.trace() << endl;
     cout << "sum of eigenvalues = " << sum(eigenvalues) << endl;
+    Eigenstruct eigenstruct = covariance.eigensystem();
+    cout << "Orthogonal transformation matrix is : " << endl;
+    cout << eigenstruct.O << endl;
+    cout << "O^T * COV * O : " << endl;
+    cout << eigenstruct.O.transpose()*covariance*eigenstruct.O << endl;
     return 0;
 }

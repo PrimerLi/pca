@@ -210,7 +210,7 @@ std::vector<Matrix> Matrix::QR() const
     return result;
 }
 
-std::vector<double> Matrix::eigenvalues() const
+std::vector<double> Matrix::eigenvalues(double eps) const
 {
     std::vector<double> result;
     assert(row == col);
@@ -222,7 +222,6 @@ std::vector<double> Matrix::eigenvalues() const
     {
         result.push_back(matrix[i][i]);
     }
-    double eps = 1.0e-15;
     Matrix updated = *this;
     while(count < iterationMax)
     {
@@ -242,9 +241,56 @@ std::vector<double> Matrix::eigenvalues() const
             s = s + (result[i] - prev[i])*(result[i] - prev[i]);
         }
         std::cout << "count = " << count << ", error = " << s << std::endl;
-        if (s < eps) break;
+        if (sqrt(s) < eps) break;
     }
     return result;
+}
+
+Eigenstruct Matrix::eigensystem(double eps) const
+{
+    assert(row == col);
+    int dimension = row;
+    int iterationMax = 100;
+    int count = 0;
+    std::vector<double> prev;
+    std::vector<double> result;
+    for (int i = 0; i < dimension; ++i)
+    {
+        result.push_back(matrix[i][i]);
+    }
+    Matrix updated = *this;
+    std::vector<Matrix> QMatrices;
+    while(count < iterationMax)
+    {
+        count++;
+        prev = result;
+        std::vector<Matrix> temp = updated.QR();
+        Matrix Q = temp[0];
+        Matrix R = temp[1];
+        QMatrices.push_back(Q);
+        updated = R*Q;
+        for (int i = 0; i < dimension; ++i)
+        {
+            result[i] = updated.matrix[i][i];
+        }
+        double s = 0;
+        for (int i = 0; i < dimension; ++i)
+        {
+            s = s + (result[i] - prev[i])*(result[i] - prev[i]);
+        }
+        //std::cout << "count = " << count << ", error = " << s << std::endl;
+        if (sqrt(s) < eps) break;
+    }
+    Matrix O = QMatrices[0];
+    std::cout << 0 << "\n";
+    std::cout << O << std::endl;
+    for (int i = 1; i < QMatrices.size(); ++i)
+    {
+        O = O*QMatrices[i];
+        std::cout << i << "\n";
+        std::cout << O << std::endl;
+    }
+    return Eigenstruct(dimension, result, O);
 }
 
 void Matrix::print() const
